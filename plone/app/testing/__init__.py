@@ -51,6 +51,5 @@ from plone.app.testing.interfaces import (
 
 # Cleanup handlers
 from plone.app.testing.cleanup import (
-        cleanUpGenericSetupRegistries,
         cleanUpMultiPlugins,
     )
