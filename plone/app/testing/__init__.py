@@ -26,7 +26,6 @@ from plone.app.testing.helpers import (
         pushGlobalRegistry,
         popGlobalRegistry,
         
-        tearDownProfileRegistation,
         tearDownMultiPluginRegistration,
         
         ploneSite,
