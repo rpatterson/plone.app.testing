@@ -45,16 +45,9 @@ Methods for changing security and the logged in user are provided.
     TODO
     >>> help(instance.login)
     TODO
-    >>> help(instance.loginAsManager)
+    >>> help(instance.loginAsPortalOwner)
     TODO
     >>> help(instance.logout)
-    TODO
-
-Since a lot of PTC tests make use of it, an alias for
-`loginAsPortalOwner` is provided but new code should use the better
-named `loginAsManager`.
-
-    >>> help(instance.loginAsPortalOwner)
     TODO
 
 The `app`, `portal` and `folder` attributes are also available.
