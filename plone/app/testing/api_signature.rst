@@ -34,25 +34,33 @@ often necessary to call the corresponding method here first to that is
 it properly initialized before installing into the portal.
 
     >>> help(instance.installProduct)
-    TODO
+    Help...
+        Initialize the Zope 2 product with the given name.
+        Also loads its ZCML.
 
 Another method for loading an arbitrary ZCML file is also provided.
 
     >>> help(instance.loadZCML)
-    TODO
+    Help...
+        Load a ZCML file, configure.zcml by default.
 
 Methods for changing security and the logged in user are provided.
 
     >>> help(instance.setRoles)
-    TODO
+    Help...
+        Set the given user's roles to a tuple of roles.
     >>> help(instance.setGroups)
-    TODO
+    Help...
+        Set the given user's groups to a tuple of groups.
     >>> help(instance.login)
-    TODO
+    Help...
+        Log in to the portal as the given user.
     >>> help(instance.loginAsPortalOwner)
-    TODO
+    Help...
+        Log in to the portal as the user who created it.
     >>> help(instance.logout)
-    TODO
+    Help...
+        Log out, i.e. become anonymous.
 
 The ``app``, ``portal`` and ``folder`` attributes are also available.
 
@@ -67,6 +75,8 @@ Methods for installing add-ons into the portal are also still
 available.
 
     >>> help(instance.addProfile)
-    TODO
+    Help...
+        Imports an extension profile into the site.
     >>> help(instance.addProduct)
-    TODO
+    Help...
+        Quickinstalls a product into the site.

@@ -1,3 +1,5 @@
+from AccessControl import getSecurityManager
+
 from plone.testing import z2
 from plone.app import testing 
 
@@ -19,7 +21,49 @@ class PloneTest(object):
         May be overridden by subclasses to perform additional test clean up.
         """
         pass
-    
+
+    def installProduct(self, productName):
+        """
+        Initialize the Zope 2 product with the given name.
+
+        Also loads its ZCML.
+        """
+        z2.installProduct(self.app, productName)
+        self.loadZCML(name='meta.zcml', package=productName)
+        self.loadZCML(name='configure.zcml', package=productName)
+        self.loadZCML(name='overrides.zcml', package=productName)
+
+    def setRoles(self, roles, userId=testing.TEST_USER_ID):
+        """Set the given user's roles to a tuple of roles."""
+        testing.setRoles(self.portal, userId, roles)
+
+    def setGroups(self, groups, userId=testing.TEST_USER_ID):
+        """Set the given user's groups to a tuple of groups."""
+        uf = self.portal.acl_users
+        uf._updateUser(userId, groups=list(groups))
+        if userId == getSecurityManager().getUser().getId():
+            self.login(userId)
+
+    def login(self, userName=testing.TEST_USER_NAME):
+        """Log in to the portal as the given user."""
+        testing.login(self.portal, userName)
+
+    def loginAsPortalOwner(self, userName=testing.SITE_OWNER_NAME):
+        """Log in to the portal as the user who created it."""
+        z2.login(self.app['acl_users'], userName)
+
+    def logout(self):
+        """Log out, i.e. become anonymous."""
+        testing.logout()
+
+    def addProfile(self, name):
+        """Imports an extension profile into the site."""
+        testing.applyProfile(self.portal, name)
+
+    def addProduct(self, name):
+        """Quickinstalls a product into the site."""
+        testing.quickInstallProduct(self.portal, name)
+
 
 class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
 
@@ -88,3 +132,6 @@ class PloneTestCase(testing.PloneSandboxLayer, PloneTest):
         del self.app
         del self.portal
 
+    def loadZCML(self, name='configure.zcml', **kw):
+        """Load a ZCML file, configure.zcml by default."""
+        self.layer.loadZCML(name=name, **kw)

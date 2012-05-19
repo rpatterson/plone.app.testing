@@ -389,6 +389,7 @@ class PloneSandboxLayer(Layer):
         return applyProfile(portal, profileName)
 
     def loadZCML(self, name='configure.zcml', **kw):
+        """Load a ZCML file, configure.zcml by default."""
         kw.setdefault('context', self['configurationContext'])
         return xmlconfig.file(name, **kw)
 
