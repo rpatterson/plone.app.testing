@@ -30,14 +30,14 @@ own test fixture.  If a test fixture is particularly full-featured, as
 most Plone test fixtures are, they can take significant time to set
 up, especially if they're set up for each individual test.
 
-The test runner provided by `zope.tesrunner` supports defining test
+The test runner provided by `zope.tesrunner`_ supports defining test
 fixtures in layers which can be shared between individual tests.  As
 such, they can greatly reduce the test run time when many tests are
 run against expensive fixtures.  It can, however, also be very hard to
 guarantee isolation between individual tests when using layers such
 that one test doesn't affect the environment of another test causing a
 false failure.  This is probably the most important service provided
-by `plone.testing`, a framework for defining layers with test
+by `plone.testing`_, a framework for defining layers with test
 isolation you can count on.
 
 
@@ -49,7 +49,7 @@ be running many tests against that fixture.  It is also best to resist
 the urge to put a bit of test fixture needed by one test into the
 layer because you already have code doing what you need in the layer.
 
-To that end, the Plone Testing API provides `unittest.TestCase` base
+To that end, the Plone Testing API provides `unittest.TestCase`_ base
 classes with helper methods and functions identical to those used to
 build custom layers.  IOW, it should be the same and just as easy to
 add test fixture to individual tests as it is to layers.
@@ -57,3 +57,8 @@ add test fixture to individual tests as it is to layers.
 
 Migrating From PloneTestCase
 ============================
+
+
+.. _zope.tesrunner: http://pypi.python.org/pypi/zope.testrunner#layers
+.. _plone.testing: http://pypi.python.org/pypi/plone.testing
+.. _unittest.TestCase: http://docs.python.org/library/unittest.html#unittest.TestCase
