@@ -25,7 +25,7 @@ attributes should only be used inside these methods when overriden.
     TODO
 
 A method for initializing add-ons, including their ZCML, are provided.
-If using `addProfile`_ or `addProduct`_ for a given add-on, it is
+If using `addProfile` or `addProduct` for a given add-on, it is
 often necessary to call the corresponding method here first to that is
 it properly initialized before installing into the portal.
 
