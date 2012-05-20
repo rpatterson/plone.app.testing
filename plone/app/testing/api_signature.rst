@@ -36,7 +36,7 @@ it properly initialized before installing into the portal.
     >>> help(instance.installProduct)
     Help...
         Initialize the Zope 2 product with the given name.
-        Also loads its ZCML.
+        Also loads its ZCML first.
 
 Another method for loading an arbitrary ZCML file is also provided.
 
