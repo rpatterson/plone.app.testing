@@ -1,4 +1,5 @@
 import contextlib
+import unittest
 
 from zope.dottedname.resolve import resolve
 
@@ -140,7 +141,7 @@ class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
             self.beforeTearDown()
 
 
-class PloneTestCase(testing.PloneSandboxLayer, PloneTest):
+class PloneTestCase(unittest.TestCase, PloneTest):
 
     layer = PLONE_DEFAULT_FIXTURE
 

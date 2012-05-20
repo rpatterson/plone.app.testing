@@ -30,12 +30,25 @@ class TestPloneTestLayer(api.PloneTestLayer):
 TEST_PLONE_TEST_FIXTURE = TestPloneTestLayer()        
 
 
+class TestPloneTestCase(api.PloneTestCase):
+
+    layer = api.PLONE_DEFAULT_FIXTURE
+
+    def runTest(self):
+        from Products.CMFPlone.Portal import PloneSite
+        self.assertIsInstance(self.portal, PloneSite)
+        from OFS.Application import Application
+        self.assertIsInstance(self.app, Application)
+        from Products.ATContentTypes.content.folder import ATFolder
+        self.assertIsInstance(self.folder, ATFolder)
+
+
 def setUpLayerInstance(test):
     test.globs['instance'] = TEST_PLONE_TEST_FIXTURE
 
 
 def setUpCaseInstance(test):
-    test.globs['instance'] = instance = api.PloneTestCase()
+    test.globs['instance'] = instance = TestPloneTestCase()
     instance.setUp()
     
 
@@ -62,6 +75,7 @@ def test_suite():
         doctest.DocFileSuite('api.rst', optionflags=OPTIONFLAGS),
         api_signature_layer,
         api_signature_case,
+        TestPloneTestCase(),
         seltest,
     ])
     return suite
