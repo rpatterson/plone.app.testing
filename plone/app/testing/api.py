@@ -1,6 +1,10 @@
+import contextlib
+
 from zope.dottedname.resolve import resolve
 
 from AccessControl import getSecurityManager
+
+from Products.CMFCore.utils import getToolByName
 
 from plone.testing import z2
 from plone.app import testing 
@@ -70,54 +74,37 @@ class PloneTest(object):
         """Quickinstalls a product into the site."""
         testing.quickInstallProduct(self.portal, name)
 
+    def setUpAttrs(self, portal):
+        """Set up the convenience attributes."""
+        self.portal = portal
+        self.app = portal.getPhysicalRoot()
+        membership = getToolByName(self.portal, 'portal_membership')
+        self.folder = membership.getHomeFolder(testing.TEST_USER_ID)
+
+    def tearDownAttrs(self):
+        """Tear down the convenience attributes."""
+        del self.folder
+        del self.app               
+        del self.portal
+
+    @contextlib.contextmanager
+    def withAttrs(self, portal):
+        self.setUpAttrs(portal)
+        yield self
+        self.tearDownAttrs()
+
 
 class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
 
-    @property
-    def app(self):
-        return self['app']
-
-    @property
-    def portal(self):
-        return self['portal']
-
     def setUpPloneSite(self, portal):
         """Add convenience attributes then delegate to the hook method."""
-        with z2.zopeApp() as app:
-            self['app'] = app
-            with testing.ploneSite() as portal:
-                self['portal'] = portal
-                self.afterSetUp()
-                del self['portal']
-            del self['app']                
-
-        import Zope2
-        self['app'] = z2.addRequestContainer(Zope2.app())
-
-        # TODO Not happy about this, would be nice to refactor
-        # ploneSite() such that the knowledge of what site setup needs
-        # to happen could be shared with cases such as this where a
-        # context manager can't be used.
-        self._portal_context = testing.ploneSite()
-        self['portal'] = self._portal_context.__enter__()
+        with self.withAttrs(portal):
+            self.afterSetUp()
 
     def tearDownPloneSite(self, portal):
         """Delegate to the hook method then clean up convenience attributes."""
-        del self['portal']
-        self._portal_context.__exit__(None, None, None)
-        del self._portal_context
-
-        self.app.REQUEST.close()
-        self.app._p_jar.close()
-        del self['app']
-
-        with z2.zopeApp() as app:
-            self['app'] = app
-            with testing.ploneSite() as portal:
-                self['portal'] = portal
-                self.beforeTearDown()
-                del self['portal']
-            del self['app']                
+        with self.withAttrs(portal):
+            self.beforeTearDown()
 
 PLONE_TESTING_FIXTURE = PloneTestLayer()
         
@@ -127,17 +114,18 @@ class PloneTestCase(testing.PloneSandboxLayer, PloneTest):
     layer = PLONE_TESTING_FIXTURE
 
     def setUp(self):
-        self.app = self.layer.app
-        self.portal = self.layer.portal
-
+        self._portal_context = testing.ploneSite()
+        self.setUpAttrs(self._portal_context.__enter__())
         self.afterSetUp()
 
     def tearDown(self):
-        self.beforeTearDown()
-
-        del self.app
-        del self.portal
-
+        try:
+            self.beforeTearDown()
+        finally:
+            self.tearDownAttrs()
+            self._portal_context.__exit__(None, None, None)
+            del self._portal_context
+        
     def loadZCML(self, name='configure.zcml', **kw):
         """Load a ZCML file, configure.zcml by default."""
         self.layer.loadZCML(name=name, **kw)
