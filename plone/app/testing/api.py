@@ -102,6 +102,7 @@ class PloneDefaultLayer(testing.PloneSandboxLayer, PloneTest):
     def setUpPloneSite(self, portal):
         with self.withAttrs(portal):
             self.setUpDefaultPlone()
+            self.setUpMockMailHost()
             self._setupUser()
             self.login()
             self._setupHomeFolder()
@@ -123,6 +124,11 @@ class PloneDefaultLayer(testing.PloneSandboxLayer, PloneTest):
         if not membership.getMemberareaCreationFlag():
             membership.setMemberareaCreationFlag()
         membership.createMemberArea(userId)
+
+    def setUpMockMailHost(self):
+        self.portal._original_MailHost = self.portal.MailHost
+        self.loadZCML('api.zcml', package=testing)
+        self.addProfile('plone.app.testing:api')
 
 PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
 

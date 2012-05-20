@@ -64,8 +64,9 @@ def test_suite():
         setUp=setUpLayerInstance)
     api_signature_layer.layer = TEST_PLONE_TEST_FIXTURE
     api_signature_case = doctest.DocFileSuite(
-        'api_signature.rst', optionflags=OPTIONFLAGS,
-        setUp=setUpCaseInstance)
+        'api_signature.rst',
+        'mail.rst',
+        optionflags=OPTIONFLAGS, setUp=setUpCaseInstance)
     api_signature_case.layer = api.PLONE_DEFAULT_FIXTURE
 
     suite.addTests([
