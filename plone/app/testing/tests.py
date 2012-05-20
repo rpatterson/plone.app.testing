@@ -44,11 +44,11 @@ class TestPloneTestCase(api.PloneTestCase):
 
 
 def setUpLayerInstance(test):
-    test.globs['instance'] = TEST_PLONE_TEST_FIXTURE
+    test.globs['self'] = TEST_PLONE_TEST_FIXTURE
 
 
 def setUpCaseInstance(test):
-    test.globs['instance'] = instance = TestPloneTestCase()
+    test.globs['self'] = instance = TestPloneTestCase()
     instance.setUp()
     
 

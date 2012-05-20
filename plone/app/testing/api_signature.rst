@@ -12,18 +12,18 @@ Start with an instance of one of the classes.  This test is run
 against both layers and test cases, so the instance is passed in as a
 global, but it doesn't matter which it is for using the signatures.
 
-    >>> help(instance)
+    >>> help(self)
     Help on...
 
 Useful set up and tear down method hooks are available and may be
 overriden in subclasses.  All of the rest of the utility methods and
 attributes should only be used inside these methods when overriden.
 
-    >>> help(instance.afterSetUp)
+    >>> help(self.afterSetUp)
     Help...
         Called after setUp() has completed.
         May be overridden by subclasses to perform additional test set up.
-    >>> help(instance.beforeTearDown)
+    >>> help(self.beforeTearDown)
     Help...
         Called before tearDown() is executed.
         May be overridden by subclasses to perform additional test clean up.
@@ -33,50 +33,50 @@ If using ``addProfile`` or ``addProduct`` for a given add-on, it is
 often necessary to call the corresponding method here first to that is
 it properly initialized before installing into the portal.
 
-    >>> help(instance.installProduct)
+    >>> help(self.installProduct)
     Help...
         Initialize the Zope 2 product with the given name.
         Also loads its ZCML first.
 
 Another method for loading an arbitrary ZCML file is also provided.
 
-    >>> help(instance.loadZCML)
+    >>> help(self.loadZCML)
     Help...
         Load a ZCML file, configure.zcml by default.
 
 Methods for changing security and the logged in user are provided.
 
-    >>> help(instance.setRoles)
+    >>> help(self.setRoles)
     Help...
         Set the given user's roles to a tuple of roles.
-    >>> help(instance.setGroups)
+    >>> help(self.setGroups)
     Help...
         Set the given user's groups to a tuple of groups.
-    >>> help(instance.login)
+    >>> help(self.login)
     Help...
         Log in to the portal as the given user.
-    >>> help(instance.loginAsPortalOwner)
+    >>> help(self.loginAsPortalOwner)
     Help...
         Log in to the portal as the user who created it.
-    >>> help(instance.logout)
+    >>> help(self.logout)
     Help...
         Log out, i.e. become anonymous.
 
 The ``app``, ``portal`` and ``folder`` attributes are also available.
 
-    >>> instance.app
+    >>> self.app
     <Application at >
-    >>> instance.portal
+    >>> self.portal
     <PloneSite at /plone>
-    >>> instance.folder
+    >>> self.folder
     <ATFolder at /plone/Members/test_user_1_>
 
 Methods for installing add-ons into the portal are also still
 available.
 
-    >>> help(instance.addProfile)
+    >>> help(self.addProfile)
     Help...
         Imports an extension profile into the site.
-    >>> help(instance.addProduct)
+    >>> help(self.addProduct)
     Help...
         Quickinstalls a product into the site.
