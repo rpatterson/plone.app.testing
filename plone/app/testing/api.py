@@ -94,7 +94,40 @@ class PloneTest(object):
         self.tearDownAttrs()
 
 
+class PloneDefaultLayer(testing.PloneSandboxLayer, PloneTest):
+    """Sets up a Plone site closer to the default OOTB Plone site."""
+
+    def setUpPloneSite(self, portal):
+        with self.withAttrs(portal):
+            self.setUpDefaultPlone()
+            self._setupUser()
+            self.login()
+            self._setupHomeFolder()
+
+    def setUpDefaultPlone(self):
+        self.installProduct('Products.PythonScripts')
+        self.addProfile('Products.CMFPlone:plone')
+        self.addProfile('Products.CMFPlone:plone-content')
+
+    def _setupUser(self, userId=testing.TEST_USER_ID,
+                   password=testing.TEST_USER_PASSWORD):
+        """Creates the default user."""
+        uf = getToolByName(self.portal, 'acl_users')
+        uf.userFolderAddUser(userId, password, ['Member'], [])
+
+    def _setupHomeFolder(self, userId=testing.TEST_USER_ID):
+        """Creates the default user's home folder."""
+        membership = getToolByName(self.portal, 'portal_membership')
+        if not membership.getMemberareaCreationFlag():
+            membership.setMemberareaCreationFlag()
+        membership.createMemberArea(userId)
+
+PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
+
+
 class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
+
+    defaultBases = (PLONE_DEFAULT_FIXTURE, )
 
     def setUpPloneSite(self, portal):
         """Add convenience attributes then delegate to the hook method."""
@@ -106,12 +139,10 @@ class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
         with self.withAttrs(portal):
             self.beforeTearDown()
 
-PLONE_TESTING_FIXTURE = PloneTestLayer()
-        
 
 class PloneTestCase(testing.PloneSandboxLayer, PloneTest):
 
-    layer = PLONE_TESTING_FIXTURE
+    layer = PLONE_DEFAULT_FIXTURE
 
     def setUp(self):
         self._portal_context = testing.ploneSite()
