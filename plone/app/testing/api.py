@@ -1,3 +1,4 @@
+import sys
 import contextlib
 import unittest
 
@@ -155,7 +156,19 @@ class PloneTestCase(unittest.TestCase, PloneTest):
             self.beforeTearDown()
         finally:
             self.tearDownAttrs()
-            self._portal_context.__exit__(None, None, None)
+
+            # TODO I hate this.  I think the
+            # non-context-manager-specific bits of zopeApp and
+            # ploneSite should be factored into separate functions
+            # that can be re-used outside of context managers such as
+            # this case here.
+            try:
+                raise Exception('Abort context manager')
+            except:
+                exc_info = sys.exc_info()
+                self._portal_context.__exit__(*exc_info)
+            finally:
+                del exc_info
             del self._portal_context
         
     def loadZCML(self, name='configure.zcml', **kw):
