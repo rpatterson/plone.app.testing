@@ -1,3 +1,5 @@
+from zope.dottedname.resolve import resolve
+
 from AccessControl import getSecurityManager
 
 from plone.testing import z2
@@ -26,13 +28,17 @@ class PloneTest(object):
         """
         Initialize the Zope 2 product with the given name.
 
-        Also loads its ZCML.
+        Also loads its ZCML first.
         """
+        package = resolve(productName)
+        try:
+            self.loadZCML(name='meta.zcml', package=package)
+            self.loadZCML(name='configure.zcml', package=package)
+            self.loadZCML(name='overrides.zcml', package=package)
+        except IOError:
+            pass  # Tolerate missing ZCML, not required
         z2.installProduct(self.app, productName)
-        self.loadZCML(name='meta.zcml', package=productName)
-        self.loadZCML(name='configure.zcml', package=productName)
-        self.loadZCML(name='overrides.zcml', package=productName)
-
+            
     def setRoles(self, roles, userId=testing.TEST_USER_ID):
         """Set the given user's roles to a tuple of roles."""
         testing.setRoles(self.portal, userId, roles)
