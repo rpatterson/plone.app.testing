@@ -13,7 +13,7 @@ against both layers and test cases, so the instance is passed in as a
 global, but it doesn't matter which it is for using the signatures.
 
     >>> help(instance)
-    Help on PloneTest...
+    Help on...
 
 Useful set up and tear down method hooks are available and may be
 overriden in subclasses.  All of the rest of the utility methods and
