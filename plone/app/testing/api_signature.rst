@@ -21,8 +21,6 @@ attributes should only be used inside these methods when overriden.
 
     >>> help(self.afterSetUp)
     Help...
-        Called after setUp() has completed.
-        May be overridden by subclasses to perform additional test set up.
     >>> help(self.beforeTearDown)
     Help...
         Called before tearDown() is executed.

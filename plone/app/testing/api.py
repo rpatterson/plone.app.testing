@@ -1,3 +1,4 @@
+import contextlib
 import unittest
 
 from zope.dottedname.resolve import resolve
@@ -114,7 +115,28 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
     def setUpFolder(self):
         membership = getToolByName(self.portal, 'portal_membership')
         self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
-        assert self['folder'] is not None
+
+    @contextlib.contextmanager
+    def withResources(self, portal):
+        self['portal'] = portal
+        self['app'] = portal.getPhysicalRoot()
+        self.setUpFolder()
+
+        yield portal
+
+        del self['folder']
+        del self['portal']
+        del self['app']
+
+    def setUpPloneSite(self, portal):
+        """Delegate to the conventional hook method."""
+        with self.withResources(portal) as portal:
+            self.afterSetUp()  # TODO cover me!
+
+    def tearDownPloneSite(self, portal):
+        """Delegate to the conventional hook method."""
+        with self.withResources(portal) as portal:
+            self.beforeTearDown()  # TODO cover me!
 
     def testSetUp(self):
         """Set aside the layer's storage before stacking for the test."""
@@ -135,21 +157,14 @@ class PloneDefaultLayer(PloneAPILayer):
 
     defaultBases = (testing.PLONE_FIXTURE, )
 
-    def setUpPloneSite(self, portal):
-        self['portal'] = portal
-        self['app'] = portal.getPhysicalRoot()
-        try:
-            self.setUpDefaultPlone()
-            self.setUpMockMailHost()
-            self.setUpErrorLog()
-            self.setUpResourceRegistries()
-            self.setUpUser()
-            self.login()
-            self.setUpHomeFolder()
-            self.setUpFolder()
-        finally:
-            del self['portal']
-            del self['app']
+    def afterSetUp(self):
+        self.setUpDefaultPlone()
+        self.setUpMockMailHost()
+        self.setUpErrorLog()
+        self.setUpResourceRegistries()
+        self.setUpUser()
+        self.login()
+        self.setUpHomeFolder()
 
     def setUpDefaultPlone(self):
         self.installProduct('Products.PythonScripts')
@@ -205,16 +220,6 @@ PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
 class PloneTestLayer(PloneAPILayer):
 
     defaultBases = (PLONE_DEFAULT_FIXTURE, )
-
-    def setUpPloneSite(self, portal):
-        """Delegate to the conventional hook method."""
-        self.setUpFolder()
-        self.afterSetUp()  # TODO cover me!
-
-    def tearDownPloneSite(self, portal):
-        """Delegate to the conventional hook method."""
-        self.beforeTearDown()  # TODO cover me!
-        del self['folder']
 
 
 class PloneTestCase(unittest.TestCase, PloneTest):
