@@ -2,7 +2,9 @@ import unittest2 as unittest
 import doctest
 
 from plone.testing import layered
+from plone.app import testing
 from plone.app.testing import api
+from plone.app.testing.tests.test_api import TestPloneTestCase
 
 OPTIONFLAGS = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
 
@@ -30,19 +32,6 @@ class TestPloneTestLayer(api.PloneTestLayer):
 TEST_PLONE_TEST_FIXTURE = TestPloneTestLayer()        
 
 
-class TestPloneTestCase(api.PloneTestCase):
-
-    layer = api.PLONE_DEFAULT_FIXTURE
-
-    def runTest(self):
-        from Products.CMFPlone.Portal import PloneSite
-        self.assertIsInstance(self.portal, PloneSite)
-        from OFS.Application import Application
-        self.assertIsInstance(self.app, Application)
-        from Products.ATContentTypes.content.folder import ATFolder
-        self.assertIsInstance(self.folder, ATFolder)
-
-
 def setUpLayerInstance(test):
     test.globs['self'] = TEST_PLONE_TEST_FIXTURE
 
@@ -54,26 +43,31 @@ def setUpCaseInstance(test):
 
 def test_suite():
     suite = unittest.TestSuite()
-    seltest = doctest.DocFileSuite('selenium.rst', optionflags=OPTIONFLAGS)
+    seltest = doctest.DocFileSuite('selenium.rst', package=testing,
+                                   optionflags=OPTIONFLAGS)
     # Run selenium tests on level 2, as it requires a correctly configured
     # Firefox browser
     seltest.level = 2
 
     suite.addTests([
-        doctest.DocFileSuite('cleanup.rst', optionflags=OPTIONFLAGS),
-        doctest.DocFileSuite('layers.rst', optionflags=OPTIONFLAGS),
-        doctest.DocFileSuite('helpers.rst', optionflags=OPTIONFLAGS),
+        doctest.DocFileSuite('cleanup.rst', package=testing,
+                             optionflags=OPTIONFLAGS),
+        doctest.DocFileSuite('layers.rst', package=testing,
+                             optionflags=OPTIONFLAGS),
+        doctest.DocFileSuite('helpers.rst', package=testing,
+                             optionflags=OPTIONFLAGS),
         layered(doctest.DocFileSuite(
             'api.rst',
             'api_signature.rst',
             'mail.rst',
-            optionflags=OPTIONFLAGS, setUp=setUpCaseInstance),
+            package=testing, optionflags=OPTIONFLAGS,
+            setUp=setUpCaseInstance),
                 layer=api.PLONE_DEFAULT_FIXTURE),
         layered(doctest.DocFileSuite(
             'api_signature.rst',
-            optionflags=OPTIONFLAGS, setUp=setUpLayerInstance),
+            package=testing, optionflags=OPTIONFLAGS,
+            setUp=setUpLayerInstance),
                 layer=TEST_PLONE_TEST_FIXTURE),
-        TestPloneTestCase(),
         seltest,
     ])
     return suite
