@@ -1,4 +1,3 @@
-import contextlib
 import unittest
 
 from zope.dottedname.resolve import resolve
