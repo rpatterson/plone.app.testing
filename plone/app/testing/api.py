@@ -194,12 +194,12 @@ class PloneTestLayer(PloneAPILayer):
 
     def setUpPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withAttrs():
+        with self.withAttrs(portal):
             self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withAttrs():
+        with self.withAttrs(portal):
             self.beforeTearDown()  # TODO cover me!
 
     @contextlib.contextmanager
