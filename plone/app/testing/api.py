@@ -134,6 +134,8 @@ class PloneDefaultLayer(PloneAPILayer):
         try:
             self.setUpDefaultPlone()
             self.setUpMockMailHost()
+            self.setUpErrorLog()
+            self.setUpResourceRegistries()
             self.setUpUser()
             self.login()
             self.setUpHomeFolder()

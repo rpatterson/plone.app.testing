@@ -55,6 +55,34 @@ build custom layers.  IOW, it should be the same and just as easy to
 add test fixture to individual tests as it is to layers.
 
 
+
+Common Conveniences
+===================
+
+When using the plone.app.testing.api.PLONE_DEFAULT_FIXTURE layer then
+a few commonly useful things will be set up.
+
+    >>> portal = layer.portal
+
+Unauthorized or NotFound exceptions can sometimes hide root problems
+when doing functional testing.  As such, only Redirect remains ignored
+by the error_log.
+
+    >>> portal.error_log.getProperties()['ignored_exceptions']
+    ('Redirect',)
+
+The resource registries are placed in debug mode to make it easier to
+inspect the individual CSS, JavaScript, and KSS resources in the HTML
+output for functional testing.
+
+    >>> portal.portal_css.getDebugMode()
+    True
+    >>> portal.portal_javascripts.getDebugMode()
+    True
+    >>> portal.portal_kss.getDebugMode()
+    True
+
+
 Migrating From PloneTestCase
 ============================
 
