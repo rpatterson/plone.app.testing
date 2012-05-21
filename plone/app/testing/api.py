@@ -1,4 +1,3 @@
-import sys
 import contextlib
 import unittest
 
@@ -76,36 +75,66 @@ class PloneTest(object):
         """Quickinstalls a product into the site."""
         testing.quickInstallProduct(self.portal, name)
 
-    def setUpAttrs(self, portal):
-        """Set up the convenience attributes."""
-        self.portal = portal
-        self.app = portal.getPhysicalRoot()
-        membership = getToolByName(self.portal, 'portal_membership')
-        self.folder = membership.getHomeFolder(testing.TEST_USER_ID)
 
-    def tearDownAttrs(self):
-        """Tear down the convenience attributes."""
-        del self.folder
-        del self.app               
-        del self.portal
-
-    @contextlib.contextmanager
-    def withAttrs(self, portal):
-        self.setUpAttrs(portal)
-        yield self
-        self.tearDownAttrs()
+class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
+                    PloneTest):
+    # Standardize on FunctionalTesting for simpler testing
+    #
+    # Some quick performance testing of integration vs functional
+    # layers found the run times of these 1000 test to be the same
+    # both as reported by the testrunner and as reported by the `time`
+    # command.  Given this, just standardize on functional testing
+    # since it has no apparent additional cost and is much less
+    # surprising when users call `transaction.commit` during tests.
 
 
-class PloneDefaultLayer(testing.PloneSandboxLayer, PloneTest):
+    defaultBases = (testing.PLONE_FIXTURE, )
+
+    @property
+    def app(self):
+        """Get the Zope 2 app from the layer resource."""
+        return self['app']
+
+    @property
+    def portal(self):
+        """Get the Plone site from the layer resource."""
+        return self['portal']
+
+    @property
+    def folder(self):
+        """Get the default user's folder from the layer resource."""
+        return self['folder']
+
+    def testSetUp(self):
+        """Set aside the layer's storage before stacking for the test."""
+        self['layer_zodbDB'] = self['zodbDB']
+        del self['zodbDB']
+        super(PloneAPILayer, self).testSetUp()
+
+    def testTearDown(self):
+        """Restore the layer's storage after unstacking for the test."""
+        super(PloneAPILayer, self).testTearDown()
+        self['zodbDB'] = self['layer_zodbDB']
+        del self['layer_zodbDB']
+
+
+class PloneDefaultLayer(PloneAPILayer):
     """Sets up a Plone site closer to the default OOTB Plone site."""
 
+    defaultBases = (testing.PLONE_FIXTURE, )
+
     def setUpPloneSite(self, portal):
-        with self.withAttrs(portal):
+        self['portal'] = portal
+        self['app'] = portal.getPhysicalRoot()
+        try:
             self.setUpDefaultPlone()
             self.setUpMockMailHost()
             self._setupUser()
             self.login()
             self._setupHomeFolder()
+        finally:
+            del self['portal']
+            del self['app']
 
     def setUpDefaultPlone(self):
         self.installProduct('Products.PythonScripts')
@@ -124,58 +153,96 @@ class PloneDefaultLayer(testing.PloneSandboxLayer, PloneTest):
         if not membership.getMemberareaCreationFlag():
             membership.setMemberareaCreationFlag()
         membership.createMemberArea(userId)
+        membership = getToolByName(self.portal, 'portal_membership')
+        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
 
     def setUpMockMailHost(self):
         self.portal._original_MailHost = self.portal.MailHost
         self.loadZCML('api.zcml', package=testing)
         self.addProfile('plone.app.testing:api')
 
+    def setUpErrorLog(self):
+        """
+        Don't ignore exceptions so that problems aren't hidden.
+
+        Unauthorized or NotFound exceptions can sometimes hide root
+        problems when doing functional testing.  As such, only
+        Redirect remains ignored by the error_log.
+        """
+        error_props = self.portal.error_log.getProperties()
+        error_props['ignored_exceptions'] = ('Redirect',)
+        error_props = self.portal.error_log.setProperties(
+            **error_props)
+
+    def setUpResourceRegistries(self):
+        """
+        Put resource registries in debug mode.
+
+        This makes it easier to inspect CSS, JavaScript, and KSS in
+        the HTML output for functional testing.
+        """
+        self.portal.portal_css.setDebugMode(True)
+        self.portal.portal_javascripts.setDebugMode(True)
+        self.portal.portal_kss.setDebugMode(True)
+
 PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
 
 
-class PloneTestLayer(testing.PloneSandboxLayer, PloneTest):
+class PloneTestLayer(PloneAPILayer):
 
     defaultBases = (PLONE_DEFAULT_FIXTURE, )
 
     def setUpPloneSite(self, portal):
-        """Add convenience attributes then delegate to the hook method."""
-        with self.withAttrs(portal):
-            self.afterSetUp()
+        """Delegate to the conventional hook method."""
+        with self.withAttrs():
+            self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
-        """Delegate to the hook method then clean up convenience attributes."""
-        with self.withAttrs(portal):
-            self.beforeTearDown()
+        """Delegate to the conventional hook method."""
+        with self.withAttrs():
+            self.beforeTearDown()  # TODO cover me!
+
+    @contextlib.contextmanager
+    def withAttrs(self, portal):
+        self['portal'] = portal
+        self['app'] = portal.getPhysicalRoot()
+        membership = getToolByName(self.portal, 'portal_membership')
+        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
+
+        yield
+
+        del self['portal']
+        del self['app']
 
 
 class PloneTestCase(unittest.TestCase, PloneTest):
 
     layer = PLONE_DEFAULT_FIXTURE
 
+    @property
+    def app(self):
+        """Get the Zope 2 app from the layer resource."""
+        return self.layer.app
+
+    @property
+    def portal(self):
+        """Get the Plone site from the layer resource."""
+        return self.layer.portal
+
+    @property
+    def folder(self):
+        """Get the default user's folder from the layer resource."""
+        return self.layer.folder
+
     def setUp(self):
-        self._portal_context = testing.ploneSite()
-        self.setUpAttrs(self._portal_context.__enter__())
+        """Delegate to the conventional hook method."""
+        super(PloneTestCase, self).setUp()
         self.afterSetUp()
 
     def tearDown(self):
-        try:
-            self.beforeTearDown()
-        finally:
-            self.tearDownAttrs()
-
-            # TODO I hate this.  I think the
-            # non-context-manager-specific bits of zopeApp and
-            # ploneSite should be factored into separate functions
-            # that can be re-used outside of context managers such as
-            # this case here.
-            try:
-                raise Exception('Abort context manager')
-            except:
-                exc_info = sys.exc_info()
-                self._portal_context.__exit__(*exc_info)
-            finally:
-                del exc_info
-            del self._portal_context
+        """Delegate to the conventional hook method."""
+        self.beforeTearDown()
+        super(PloneTestCase, self).tearDown()
         
     def loadZCML(self, name='configure.zcml', **kw):
         """Load a ZCML file, configure.zcml by default."""
