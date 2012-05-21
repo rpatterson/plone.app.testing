@@ -192,25 +192,11 @@ class PloneTestLayer(PloneAPILayer):
 
     def setUpPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withAttrs(portal):
-            self.afterSetUp()  # TODO cover me!
+        self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withAttrs(portal):
-            self.beforeTearDown()  # TODO cover me!
-
-    @contextlib.contextmanager
-    def withAttrs(self, portal):
-        self['portal'] = portal
-        self['app'] = portal.getPhysicalRoot()
-        membership = getToolByName(self.portal, 'portal_membership')
-        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
-
-        yield
-
-        del self['portal']
-        del self['app']
+        self.beforeTearDown()  # TODO cover me!
 
 
 class PloneTestCase(unittest.TestCase, PloneTest):
