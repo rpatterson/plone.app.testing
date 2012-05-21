@@ -161,6 +161,7 @@ class PloneDefaultLayer(PloneAPILayer):
         membership.createMemberArea(userId)
 
     def setUpMockMailHost(self):
+        """Gather sent messages in portal.MailHost.messages."""
         self.portal._original_MailHost = self.portal.MailHost
         self.loadZCML('api.zcml', package=testing)
         self.addProfile('plone.app.testing:api')
