@@ -134,9 +134,9 @@ class PloneDefaultLayer(PloneAPILayer):
         try:
             self.setUpDefaultPlone()
             self.setUpMockMailHost()
-            self._setupUser()
+            self.setUpUser()
             self.login()
-            self._setupHomeFolder()
+            self.setUpHomeFolder()
             self.setUpFolder()
         finally:
             del self['portal']
@@ -147,13 +147,13 @@ class PloneDefaultLayer(PloneAPILayer):
         self.addProfile('Products.CMFPlone:plone')
         self.addProfile('Products.CMFPlone:plone-content')
     
-    def _setupUser(self, userId=testing.TEST_USER_ID,
+    def setUpUser(self, userId=testing.TEST_USER_ID,
                    password=testing.TEST_USER_PASSWORD):
         """Creates the default user."""
         uf = getToolByName(self.portal, 'acl_users')
         uf.userFolderAddUser(userId, password, ['Member'], [])
 
-    def _setupHomeFolder(self, userId=testing.TEST_USER_ID):
+    def setUpHomeFolder(self, userId=testing.TEST_USER_ID):
         """Creates the default user's home folder."""
         membership = getToolByName(self.portal, 'portal_membership')
         if not membership.getMemberareaCreationFlag():
