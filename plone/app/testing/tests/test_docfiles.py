@@ -14,26 +14,8 @@ def dummy(context):
     pass
 
 
-class TestPloneTestLayer(api.PloneTestLayer):
-
-    def setUpPloneSite(self, portal):
-        """Abuse the setUp to keep convenience attributes around."""
-        super(TestPloneTestLayer, self).setUpPloneSite(portal)
-        self._portal_context = testing.ploneSite()
-        self.setUpAttrs(self._portal_context.__enter__())
-
-    def tearDownPloneSite(self, portal):
-        """Clean up the abuse."""
-        self.tearDownAttrs()
-        self._portal_context.__exit__(None, None, None)
-        del self._portal_context
-        super(TestPloneTestLayer, self).tearDownPloneSite(portal)
-
-TEST_PLONE_TEST_FIXTURE = TestPloneTestLayer()        
-
-
 def setUpLayerInstance(test):
-    test.globs['self'] = TEST_PLONE_TEST_FIXTURE
+    test.globs['self'] = api.PLONE_DEFAULT_FIXTURE
 
 
 def setUpCaseInstance(test):
@@ -67,7 +49,7 @@ def test_suite():
             'api_signature.rst',
             package=testing, optionflags=OPTIONFLAGS,
             setUp=setUpLayerInstance),
-                layer=TEST_PLONE_TEST_FIXTURE),
+                layer=api.PLONE_DEFAULT_FIXTURE),
         seltest,
     ])
     return suite
