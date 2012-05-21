@@ -85,6 +85,38 @@ output for functional testing.
 Migrating From PloneTestCase
 ============================
 
+Simple tests using PloneTestCase and/or the layers there should be
+fairly easy to migrate to ``plone.app.testing.api`` requiring only
+small changes for docfile tests:
+
+* Remove all imports from ``Products.PloneTestCase`` and the Zope2
+  ``Testing`` module, including ``Testing.ZopeTestCase``.  Replace
+  them with the appropriate imports from ``plone.app.testing.api``,
+  specific details for common cases below.
+
+* For layers based on ``collective.testcaselayer``, convert all layer
+  classes to use just the ``plone.app.testing.api.PloneTestLayer``
+  base class.
+
+* Your layers may be instantiated without any bases if the
+  ``plone.app.testing.api.PLONE_DEFAULT_FIXTURE`` is the appropriate
+  base layer.
+
+* Convert ``Products.PloneTestCase.ptc.PloneTestCase`` to
+  ``plone.app.testing.api.PloneTestCase``>
+
+* There's no longer any need for ``FunctionalTestCase`` variants of
+  your test case classes.  Just use the one with a
+  ``plone.app.testing.api.PloneTestCase`` base class and the
+  appropriate layer based on ``plone.app.testing.api.PloneTestLayer``
+  for all your tests.
+
+* Convert ``installPackage`` and ``installProduct`` from
+  ``Testing.ZopeTestCase`` to use ``self.installProduct``.
+
+* Wrap your ``DocFileSuites`` in `plone.testing.layerd
+  <http://pypi.python.org/pypi/plone.testing#doctest-fixtures-and-layers>`_.
+
 
 .. _zope.tesrunner: http://pypi.python.org/pypi/zope.testrunner#layers
 .. _plone.testing: http://pypi.python.org/pypi/plone.testing
