@@ -104,13 +104,20 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
         """Get the default user's folder from the layer resource."""
         return self['folder']
 
+    def setUpFolder(self):
+        membership = getToolByName(self.portal, 'portal_membership')
+        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
+        assert self['folder'] is not None
+
     def testSetUp(self):
         """Set aside the layer's storage before stacking for the test."""
         self['layer_zodbDB'] = self['zodbDB']
         super(PloneAPILayer, self).testSetUp()
+        self.setUpFolder()
 
     def testTearDown(self):
         """Restore the layer's storage after unstacking for the test."""
+        del self['folder']
         super(PloneAPILayer, self).testTearDown()
         self['zodbDB'] = self['layer_zodbDB']
         del self['layer_zodbDB']
@@ -130,6 +137,7 @@ class PloneDefaultLayer(PloneAPILayer):
             self._setupUser()
             self.login()
             self._setupHomeFolder()
+            self.setUpFolder()
         finally:
             del self['portal']
             del self['app']
@@ -138,7 +146,7 @@ class PloneDefaultLayer(PloneAPILayer):
         self.installProduct('Products.PythonScripts')
         self.addProfile('Products.CMFPlone:plone')
         self.addProfile('Products.CMFPlone:plone-content')
-
+    
     def _setupUser(self, userId=testing.TEST_USER_ID,
                    password=testing.TEST_USER_PASSWORD):
         """Creates the default user."""
@@ -151,8 +159,6 @@ class PloneDefaultLayer(PloneAPILayer):
         if not membership.getMemberareaCreationFlag():
             membership.setMemberareaCreationFlag()
         membership.createMemberArea(userId)
-        membership = getToolByName(self.portal, 'portal_membership')
-        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
 
     def setUpMockMailHost(self):
         self.portal._original_MailHost = self.portal.MailHost
@@ -192,11 +198,13 @@ class PloneTestLayer(PloneAPILayer):
 
     def setUpPloneSite(self, portal):
         """Delegate to the conventional hook method."""
+        self.setUpFolder()
         self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
         """Delegate to the conventional hook method."""
         self.beforeTearDown()  # TODO cover me!
+        del self['folder']
 
 
 class PloneTestCase(unittest.TestCase, PloneTest):
