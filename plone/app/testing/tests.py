@@ -1,7 +1,7 @@
 import unittest2 as unittest
 import doctest
 
-from plone.app import testing
+from plone.testing import layered
 from plone.app.testing import api
 
 OPTIONFLAGS = doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
@@ -59,23 +59,20 @@ def test_suite():
     # Firefox browser
     seltest.level = 2
 
-    api_signature_layer = doctest.DocFileSuite(
-        'api_signature.rst', optionflags=OPTIONFLAGS,
-        setUp=setUpLayerInstance)
-    api_signature_layer.layer = TEST_PLONE_TEST_FIXTURE
-    api_signature_case = doctest.DocFileSuite(
-        'api_signature.rst',
-        'mail.rst',
-        optionflags=OPTIONFLAGS, setUp=setUpCaseInstance)
-    api_signature_case.layer = api.PLONE_DEFAULT_FIXTURE
-
     suite.addTests([
         doctest.DocFileSuite('cleanup.rst', optionflags=OPTIONFLAGS),
         doctest.DocFileSuite('layers.rst', optionflags=OPTIONFLAGS),
         doctest.DocFileSuite('helpers.rst', optionflags=OPTIONFLAGS),
-        doctest.DocFileSuite('api.rst', optionflags=OPTIONFLAGS),
-        api_signature_layer,
-        api_signature_case,
+        layered(doctest.DocFileSuite(
+            'api.rst',
+            'api_signature.rst',
+            'mail.rst',
+            optionflags=OPTIONFLAGS, setUp=setUpCaseInstance),
+                layer=api.PLONE_DEFAULT_FIXTURE),
+        layered(doctest.DocFileSuite(
+            'api_signature.rst',
+            optionflags=OPTIONFLAGS, setUp=setUpLayerInstance),
+                layer=TEST_PLONE_TEST_FIXTURE),
         TestPloneTestCase(),
         seltest,
     ])
