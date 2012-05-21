@@ -89,6 +89,13 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
 
     defaultBases = (testing.PLONE_FIXTURE, )
 
+    def __init__(self, bases=None, name=None, module=None):
+        """Automatically name layers, even with bases passed in."""
+        if name is None:
+            name = self.__class__.__name__
+        super(PloneAPILayer, self).__init__(
+            bases=bases, name=name, module=module)
+
     @property
     def app(self):
         """Get the Zope 2 app from the layer resource."""
