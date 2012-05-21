@@ -108,7 +108,6 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
     def testSetUp(self):
         """Set aside the layer's storage before stacking for the test."""
         self['layer_zodbDB'] = self['zodbDB']
-        del self['zodbDB']
         super(PloneAPILayer, self).testSetUp()
 
     def testTearDown(self):
