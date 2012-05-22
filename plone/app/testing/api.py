@@ -236,8 +236,11 @@ class PloneDefaultLayer(PloneAPILayer, testing.PloneSandboxLayer):
 
     def setUpDefaultPlone(self):
         self.installProduct('Products.PythonScripts')
-        self.addProfile('Products.CMFPlone:plone')
-        self.addProfile('Products.CMFPlone:plone-content')
+
+        from Products.CMFPlone import factory
+        self.addProfile(factory._DEFAULT_PROFILE)
+        self.addProfile(factory._CONTENT_PROFILE)
+        self.addProfile('plonetheme.sunburst:default')
 
     def setUpMockMailHost(self):
         """Gather sent messages in portal.MailHost.messages."""
