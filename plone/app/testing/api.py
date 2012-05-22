@@ -184,22 +184,22 @@ class PloneAPILayer(PloneTest):
 
     def setUpZope(self, app, configurationContext):
         """Delegate to the conventional hook method."""
-        with self.withApp(app) as app:
+        with self.withApp(app):
             self.beforeSetUp()  # TODO cover me!
 
     def setUpPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withPortal(portal) as portal:
+        with self.withPortal(portal):
             self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withPortal(portal) as portal:
+        with self.withPortal(portal):
             self.beforeTearDown()  # TODO cover me!
 
     def tearDownZope(self, app):
         """Delegate to the conventional hook method."""
-        with self.withApp(app) as app:
+        with self.withApp(app):
             self.afterTearDown()  # TODO cover me!
 
 
