@@ -74,7 +74,23 @@ class PloneTest(object):
     def addProduct(self, name):
         """Quickinstalls a product into the site."""
         testing.quickInstallProduct(self.portal, name)
+    
+    def addUser(self, userId=testing.TEST_USER_ID,
+                   password=testing.TEST_USER_PASSWORD):
+        """Creates a user, plone.app.testing.TEST_USER_ID by default."""
+        uf = getToolByName(self.portal, 'acl_users')
+        uf.userFolderAddUser(userId, password, ['Member'], [])
 
+    def addHomeFolder(self, userId=testing.TEST_USER_ID):
+        """
+        Creates a user's home folder.
+
+        Creates plone.app.testing.TEST_USER_ID's by default.
+        """
+        membership = getToolByName(self.portal, 'portal_membership')
+        if not membership.getMemberareaCreationFlag():
+            membership.setMemberareaCreationFlag()
+        membership.createMemberArea(userId)
 
 class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
                     PloneTest):
@@ -162,27 +178,14 @@ class PloneDefaultLayer(PloneAPILayer):
         self.setUpMockMailHost()
         self.setUpErrorLog()
         self.setUpResourceRegistries()
-        self.setUpUser()
+        self.addUser()
         self.login()
-        self.setUpHomeFolder()
+        self.addHomeFolder()
 
     def setUpDefaultPlone(self):
         self.installProduct('Products.PythonScripts')
         self.addProfile('Products.CMFPlone:plone')
         self.addProfile('Products.CMFPlone:plone-content')
-    
-    def setUpUser(self, userId=testing.TEST_USER_ID,
-                   password=testing.TEST_USER_PASSWORD):
-        """Creates the default user."""
-        uf = getToolByName(self.portal, 'acl_users')
-        uf.userFolderAddUser(userId, password, ['Member'], [])
-
-    def setUpHomeFolder(self, userId=testing.TEST_USER_ID):
-        """Creates the default user's home folder."""
-        membership = getToolByName(self.portal, 'portal_membership')
-        if not membership.getMemberareaCreationFlag():
-            membership.setMemberareaCreationFlag()
-        membership.createMemberArea(userId)
 
     def setUpMockMailHost(self):
         """Gather sent messages in portal.MailHost.messages."""
