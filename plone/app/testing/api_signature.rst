@@ -19,12 +19,24 @@ Useful set up and tear down method hooks are available and may be
 overriden in subclasses.  All of the rest of the utility methods and
 attributes should only be used inside these methods when overriden.
 
+    >>> help(self.beforeSetUp)
+    Help...
+        Called before the Plone site is created and configured.
+        May be overridden by subclasses to perform additional test set
+        up before a portal is created, such as using self.loadZCML().
     >>> help(self.afterSetUp)
     Help...
     >>> help(self.beforeTearDown)
     Help...
-        Called before tearDown() is executed.
-        May be overridden by subclasses to perform additional test clean up.
+        Called before the Plone site is removed and cleaned up.
+        May be overridden by subclasses to perform additional test
+        clean up that needs access to the Plone site.
+    >>> help(self.afterTearDown)
+    Help...
+        Called after the Plone site has been removed and cleaned up.
+        May be overridden by subclasses to perform additional test
+        clean up, such as cleaning up any global state change not
+        already isolated by plone.testing.
 
 A method for initializing add-ons, including their ZCML, are provided.
 If using ``addProfile`` or ``addProduct`` for a given add-on, it is

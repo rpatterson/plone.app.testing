@@ -15,19 +15,40 @@ from plone.app import testing
 
 class PloneTest(object):
 
+    def beforeSetUp(self):
+        """
+        Called before the Plone site is created and configured.
+
+        May be overridden by subclasses to perform additional test set
+        up before a portal is created, such as using self.loadZCML().
+        """
+        pass
+
     def afterSetUp(self):
         """
-        Called after setUp() has completed.
+        Called after the Plone site has been created and configured.
 
-        May be overridden by subclasses to perform additional test set up.
+        May be overridden by subclasses to perform additional test set
+        up that involves making changes to the Plone site.
         """
         pass
 
     def beforeTearDown(self):
         """
-        Called before tearDown() is executed.
+        Called before the Plone site is removed and cleaned up.
 
-        May be overridden by subclasses to perform additional test clean up.
+        May be overridden by subclasses to perform additional test
+        clean up that needs access to the Plone site.
+        """
+        pass
+
+    def afterTearDown(self):
+        """
+        Called after the Plone site has been removed and cleaned up.
+
+        May be overridden by subclasses to perform additional test
+        clean up, such as cleaning up any global state change not
+        already isolated by plone.testing.
         """
         pass
 
@@ -143,7 +164,13 @@ class PloneAPILayer(PloneTest):
         return xmlconfig.file(name, **kw)
 
     @contextlib.contextmanager
-    def withResources(self, portal):
+    def withApp(self, app):
+        self['app'] = app
+        yield app
+        del self['app']
+
+    @contextlib.contextmanager
+    def withPortal(self, portal):
         self['portal'] = portal
         self['app'] = portal.getPhysicalRoot()
         membership = getToolByName(self.portal, 'portal_membership')
@@ -155,15 +182,25 @@ class PloneAPILayer(PloneTest):
         del self['portal']
         del self['app']
 
+    def setUpZope(self, app, configurationContext):
+        """Delegate to the conventional hook method."""
+        with self.withApp(app) as app:
+            self.beforeSetUp()  # TODO cover me!
+
     def setUpPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withResources(portal) as portal:
+        with self.withPortal(portal) as portal:
             self.afterSetUp()  # TODO cover me!
 
     def tearDownPloneSite(self, portal):
         """Delegate to the conventional hook method."""
-        with self.withResources(portal) as portal:
+        with self.withPortal(portal) as portal:
             self.beforeTearDown()  # TODO cover me!
+
+    def tearDownZope(self, app):
+        """Delegate to the conventional hook method."""
+        with self.withApp(app) as app:
+            self.afterTearDown()  # TODO cover me!
 
 
 class PloneDefaultLayer(PloneAPILayer, testing.PloneSandboxLayer):
@@ -263,6 +300,7 @@ class PloneTestCase(unittest.TestCase, PloneTest):
 
     def setUp(self):
         """Delegate to the conventional hook method."""
+        self.beforeSetUp()
         super(PloneTestCase, self).setUp()
         self.afterSetUp()
 
@@ -270,6 +308,7 @@ class PloneTestCase(unittest.TestCase, PloneTest):
         """Delegate to the conventional hook method."""
         self.beforeTearDown()
         super(PloneTestCase, self).tearDown()
+        self.afterTearDown()
         
     def loadZCML(self, name='configure.zcml', **kw):
         """Load a ZCML file, configure.zcml by default."""
