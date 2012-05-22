@@ -114,6 +114,8 @@ class PloneTest(object):
         if not membership.getMemberareaCreationFlag():
             membership.setMemberareaCreationFlag()
         membership.createMemberArea(userId)
+        if membership.getMemberareaCreationFlag():
+            membership.setMemberareaCreationFlag()
 
 
 class PloneAPILayer(PloneTest):
