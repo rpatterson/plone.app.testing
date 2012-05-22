@@ -2,6 +2,7 @@ import contextlib
 import unittest
 
 from zope.dottedname.resolve import resolve
+from zope.configuration import xmlconfig
 
 from AccessControl import getSecurityManager
 
@@ -92,8 +93,8 @@ class PloneTest(object):
             membership.setMemberareaCreationFlag()
         membership.createMemberArea(userId)
 
-class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
-                    PloneTest):
+
+class PloneAPILayer(PloneTest):
     # Standardize on FunctionalTesting for simpler testing
     #
     # Some quick performance testing of integration vs functional
@@ -128,15 +129,17 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
         """Get the default user's folder from the layer resource."""
         return self['folder']
 
-    def setUpFolder(self):
-        membership = getToolByName(self.portal, 'portal_membership')
-        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
+    def loadZCML(self, name='configure.zcml', **kw):
+        """Load a ZCML file, configure.zcml by default."""
+        kw.setdefault('context', self['configurationContext'])
+        return xmlconfig.file(name, **kw)
 
     @contextlib.contextmanager
     def withResources(self, portal):
         self['portal'] = portal
         self['app'] = portal.getPhysicalRoot()
-        self.setUpFolder()
+        membership = getToolByName(self.portal, 'portal_membership')
+        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
 
         yield portal
 
@@ -154,21 +157,8 @@ class PloneAPILayer(testing.PloneSandboxLayer, testing.FunctionalTesting,
         with self.withResources(portal) as portal:
             self.beforeTearDown()  # TODO cover me!
 
-    def testSetUp(self):
-        """Set aside the layer's storage before stacking for the test."""
-        self['layer_zodbDB'] = self['zodbDB']
-        super(PloneAPILayer, self).testSetUp()
-        self.setUpFolder()
 
-    def testTearDown(self):
-        """Restore the layer's storage after unstacking for the test."""
-        del self['folder']
-        super(PloneAPILayer, self).testTearDown()
-        self['zodbDB'] = self['layer_zodbDB']
-        del self['layer_zodbDB']
-
-
-class PloneDefaultLayer(PloneAPILayer):
+class PloneDefaultLayer(PloneAPILayer, testing.PloneSandboxLayer):
     """Sets up a Plone site closer to the default OOTB Plone site."""
 
     defaultBases = (testing.PLONE_FIXTURE, )
@@ -217,10 +207,29 @@ class PloneDefaultLayer(PloneAPILayer):
         self.portal.portal_javascripts.setDebugMode(True)
         self.portal.portal_kss.setDebugMode(True)
 
-PLONE_DEFAULT_TESTING = PloneDefaultLayer()
+PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
 
 
-class PloneTestLayer(PloneAPILayer):
+class PloneDefaultTesting(testing.FunctionalTesting, PloneAPILayer):
+    """Sets up a Plone site closer to the default OOTB Plone site."""
+
+    defaultBases = (PLONE_DEFAULT_FIXTURE, )
+
+    def testSetUp(self):
+        """Set aside the layer's storage before stacking for the test."""
+        super(PloneDefaultTesting, self).testSetUp()
+        membership = getToolByName(self.portal, 'portal_membership')
+        self['folder'] = membership.getHomeFolder(testing.TEST_USER_ID)
+
+    def testTearDown(self):
+        """Restore the layer's storage after unstacking for the test."""
+        del self['folder']
+        super(PloneDefaultTesting, self).testTearDown()
+
+PLONE_DEFAULT_TESTING = PloneDefaultTesting()
+
+
+class PloneTestLayer(PloneAPILayer, testing.PloneSandboxLayer):
 
     defaultBases = (PLONE_DEFAULT_TESTING, )
 
