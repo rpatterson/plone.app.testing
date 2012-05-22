@@ -121,6 +121,16 @@ small changes for docfile tests:
   ``self.installProduct()`` so there's no need to use
   ``self.loadZCML()`` in that case.
 
+* Convert ``from Products.Five.testbrowser.Browser`` imports to
+  ``plone.app.testing.api.Browser`` and change ``Browser()`` to
+  ``Browser(self.app)`` in test cases or ``Browser(layer.app)`` in
+  docfile tests.
+
+* Convert
+  ``Products.PloneTestCase.PloneTestCase.FunctionalTestCase.publish()``
+  calls to use testbrowsers instead.  This may require significant
+  manual intervention.
+
 * Wrap your ``DocFileSuites`` in `plone.app.testing.api.layered
   <http://pypi.python.org/pypi/plone.testing#doctest-fixtures-and-layers>`_.
 

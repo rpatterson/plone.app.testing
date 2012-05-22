@@ -2,6 +2,8 @@ import sys
 import contextlib
 import unittest
 
+import mechanize
+
 import transaction
 
 from zope.dottedname.resolve import resolve
@@ -12,6 +14,7 @@ from AccessControl import getSecurityManager
 from Products.CMFCore.utils import getToolByName
 
 from plone.testing import z2
+from plone.testing import _z2_testbrowser
 from plone.app import testing 
 
 # Convenience imports
@@ -337,3 +340,48 @@ class PloneTestCase(unittest.TestCase, PloneTest):
     def loadZCML(self, name='configure.zcml', **kw):
         """Load a ZCML file, configure.zcml by default."""
         self.layer.loadZCML(name=name, **kw)
+
+    
+class Browser(_z2_testbrowser.Browser):
+    
+    def __init__(self, app, url=None):
+        super(_z2_testbrowser.Browser, self).__init__(
+            url=url, mech_browser=Zope2MechanizeBrowser(app))
+
+
+class Zope2MechanizeBrowser(_z2_testbrowser.Zope2MechanizeBrowser):
+
+    def __init__(self, app, *args, **kws):
+        
+        def httpHandlerFactory():
+            return Zope2HTTPHandler(app)
+        
+        self.handler_classes = mechanize.Browser.handler_classes.copy()
+        self.handler_classes["http"] = httpHandlerFactory
+        self.default_others = [cls for cls in self.default_others 
+                               if cls in mechanize.Browser.handler_classes]
+        mechanize.Browser.__init__(self, *args, **kws)
+
+
+class Zope2HTTPHandler(_z2_testbrowser.Zope2HTTPHandler):
+
+    def http_open(self, req):
+        def connectionFactory(host, timeout=None):
+            return Zope2Connection(self.app, host, timeout=timeout)
+        return self.do_open(connectionFactory, req)
+
+
+class Zope2Connection(_z2_testbrowser.Zope2Connection):
+    
+    def __init__(self, app, host, timeout=None):
+        super(Zope2Connection, self).__init__(app, host, timeout=timeout)
+        self.caller = Zope2Caller(app)
+
+
+class Zope2Caller(_z2_testbrowser.Zope2Caller):
+
+    def __call__(self, requestString, handle_errors=True):
+        """Commit any outstanding commit before publishing."""
+        transaction.commit()
+        return super(Zope2Caller, self).__call__(
+            requestString, handle_errors=handle_errors)
