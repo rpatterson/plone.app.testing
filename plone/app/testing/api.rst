@@ -111,8 +111,15 @@ small changes for docfile tests:
   appropriate layer based on ``plone.app.testing.api.PloneTestLayer``
   for all your tests.
 
-* Convert ``installPackage`` and ``installProduct`` from
-  ``Testing.ZopeTestCase`` to use ``self.installProduct``.
+* Convert ``installPackage()`` and ``installProduct()`` from
+  ``Testing.ZopeTestCase`` to use ``self.installProduct()`` inside the
+  ``def beforeSetUp(self):`` method.
+
+* Use the ``self.loadZCML()`` convenience method  inside the
+  ``def beforeSetUp(self):`` method to load arbitrary ZCML.  Note that
+  loading a packages ZCML is already handled by
+  ``self.installProduct()`` so there's no need to use
+  ``self.loadZCML()`` in that case.
 
 * Wrap your ``DocFileSuites`` in `plone.testing.layerd
   <http://pypi.python.org/pypi/plone.testing#doctest-fixtures-and-layers>`_.
