@@ -2,6 +2,8 @@ import sys
 import contextlib
 import unittest
 
+import transaction
+
 from zope.dottedname.resolve import resolve
 from zope.configuration import xmlconfig
 
@@ -323,9 +325,11 @@ class PloneTestCase(unittest.TestCase, PloneTest):
         self.beforeSetUp()
         super(PloneTestCase, self).setUp()
         self.afterSetUp()
+        transaction.commit()
 
     def tearDown(self):
         """Delegate to the conventional hook method."""
+        transaction.abort()
         self.beforeTearDown()
         super(PloneTestCase, self).tearDown()
         self.afterTearDown()
