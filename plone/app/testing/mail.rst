@@ -3,7 +3,7 @@
 Mock Mailhost
 =============
 
-When the plone.testing.api.PLONE_DEFAULT_FIXTURE layer is used, then
+When the plone.testing.api.PLONE_DEFAULT_TESTING layer is used, then
 messages sent with the portal.MailHost.send method will be appended
 to a list for checking in tests.
 

@@ -3,7 +3,7 @@ from plone.app.testing import api
 
 class TestPloneTestCase(api.PloneTestCase):
 
-    layer = api.PLONE_DEFAULT_FIXTURE
+    layer = api.PLONE_DEFAULT_TESTING
 
     def runTest(self):
         pass

@@ -217,17 +217,17 @@ class PloneDefaultLayer(PloneAPILayer):
         self.portal.portal_javascripts.setDebugMode(True)
         self.portal.portal_kss.setDebugMode(True)
 
-PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
+PLONE_DEFAULT_TESTING = PloneDefaultLayer()
 
 
 class PloneTestLayer(PloneAPILayer):
 
-    defaultBases = (PLONE_DEFAULT_FIXTURE, )
+    defaultBases = (PLONE_DEFAULT_TESTING, )
 
 
 class PloneTestCase(unittest.TestCase, PloneTest):
 
-    layer = PLONE_DEFAULT_FIXTURE
+    layer = PLONE_DEFAULT_TESTING
 
     @property
     def app(self):

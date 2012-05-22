@@ -15,7 +15,7 @@ def dummy(context):
 
 
 def setUpLayerInstance(test):
-    test.globs['self'] = api.PLONE_DEFAULT_FIXTURE
+    test.globs['self'] = api.PLONE_DEFAULT_TESTING
 
 
 def setUpCaseInstance(test):
@@ -44,12 +44,12 @@ def test_suite():
             'mail.rst',
             package=testing, optionflags=OPTIONFLAGS,
             setUp=setUpCaseInstance),
-                layer=api.PLONE_DEFAULT_FIXTURE),
+                layer=api.PLONE_DEFAULT_TESTING),
         layered(doctest.DocFileSuite(
             'api_signature.rst',
             package=testing, optionflags=OPTIONFLAGS,
             setUp=setUpLayerInstance),
-                layer=api.PLONE_DEFAULT_FIXTURE),
+                layer=api.PLONE_DEFAULT_TESTING),
         seltest,
     ])
     return suite

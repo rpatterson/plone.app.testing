@@ -58,7 +58,7 @@ add test fixture to individual tests as it is to layers.
 Common Conveniences
 ===================
 
-When using the plone.app.testing.api.PLONE_DEFAULT_FIXTURE layer then
+When using the plone.app.testing.api.PLONE_DEFAULT_TESTING layer then
 a few commonly useful things will be set up.
 
     >>> portal = layer.portal
@@ -99,7 +99,7 @@ small changes for docfile tests:
   base class.
 
 * Your layers may be instantiated without any bases if the
-  ``plone.app.testing.api.PLONE_DEFAULT_FIXTURE`` is the appropriate
+  ``plone.app.testing.api.PLONE_DEFAULT_TESTING`` is the appropriate
   base layer.
 
 * Convert ``Products.PloneTestCase.ptc.PloneTestCase`` to
