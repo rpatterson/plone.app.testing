@@ -12,6 +12,20 @@ from Products.CMFCore.utils import getToolByName
 from plone.testing import z2
 from plone.app import testing 
 
+# Convenience imports
+from plone.testing import layered
+from plone.app.testing import  (
+        PLONE_SITE_ID,
+        PLONE_SITE_TITLE,
+        DEFAULT_LANGUAGE,
+        TEST_USER_NAME,
+        TEST_USER_ID,
+        TEST_USER_PASSWORD,
+        TEST_USER_ROLES,
+        SITE_OWNER_NAME,
+        SITE_OWNER_PASSWORD
+    )
+
 
 class PloneTest(object):
 
