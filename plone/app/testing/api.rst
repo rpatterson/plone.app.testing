@@ -121,7 +121,7 @@ small changes for docfile tests:
   ``self.installProduct()`` so there's no need to use
   ``self.loadZCML()`` in that case.
 
-* Wrap your ``DocFileSuites`` in `plone.testing.layerd
+* Wrap your ``DocFileSuites`` in `plone.app.testing.api.layered
   <http://pypi.python.org/pypi/plone.testing#doctest-fixtures-and-layers>`_.
 
 
