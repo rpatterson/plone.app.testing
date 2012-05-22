@@ -131,8 +131,8 @@ small changes for docfile tests:
   calls to use testbrowsers instead.  This may require significant
   manual intervention.
 
-* Wrap your ``DocFileSuites`` in `plone.app.testing.api.layered
-  <http://pypi.python.org/pypi/plone.testing#doctest-fixtures-and-layers>`_.
+* Convert ``ZopeDocFileSuite`` or ``FunctionalDocFileSuite`` from
+  ``Testing.ZopeTestCase`` with ``plone.app.testing.api.DocFileSuite``.
 
 
 .. _zope.tesrunner: http://pypi.python.org/pypi/zope.testrunner#layers

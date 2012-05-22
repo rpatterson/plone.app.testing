@@ -1,6 +1,7 @@
 import sys
 import contextlib
 import unittest
+import doctest
 
 import mechanize
 
@@ -385,3 +386,55 @@ class Zope2Caller(_z2_testbrowser.Zope2Caller):
         transaction.commit()
         return super(Zope2Caller, self).__call__(
             requestString, handle_errors=handle_errors)
+
+
+def DocFileSuite(*paths, **kw):
+    """
+    Create a test suite from the given docfile paths with conveniences. 
+
+    If layer is omitted and test_class is given and test_class has a
+    layer, that will be used for the docfile test.
+    """
+    # TODO Cover me!
+    layer = kw.pop('layer', None)
+    test_class = kw.pop('test_class', None)
+    if (layer is None and test_class is not None and
+        hasattr(test_class, 'layer')):
+        layer = test_class.layer
+    else:
+        layer = PLONE_DEFAULT_TESTING
+
+    if test_class is not None:
+        self = test_class(methodName='setUp')
+
+    kwsetUp = kw.get('setUp')
+    def setUp(test):
+        test.globs.update(layer=layer, self=self, test=test, **kw)
+        for attr in ('app', 'portal', 'folder'):
+            test.globs[attr] = getattr(layer, attr) 
+            if 'self' in test.globs:
+                test.globs[attr] = getattr(self, attr)
+        if 'self' in test.globs:
+            self.setUp()
+            self.globs = test.globs
+            if kwsetUp is not None:
+                kwsetUp(self)
+        elif kwsetUp is not None:
+            kwsetUp(test)
+
+    kw['setUp'] = setUp
+
+    kwtearDown = kw.get('tearDown')
+    def tearDown(test):
+        if kwtearDown is not None:
+            if 'self' in test.globs:
+                kwtearDown(self)
+                self.tearDown()
+            else:
+                kwtearDown(test)
+
+    kw['tearDown'] = tearDown
+
+    suite = doctest.DocFileSuite(*paths, **kw)
+    suite.layer = layer
+    return suite
