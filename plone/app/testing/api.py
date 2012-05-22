@@ -1,3 +1,4 @@
+import sys
 import contextlib
 import unittest
 
@@ -111,6 +112,13 @@ class PloneAPILayer(PloneTest):
         """Automatically name layers, even with bases passed in."""
         if name is None:
             name = self.__class__.__name__
+        if module is None:
+            # Get the module name of whatever instantiated the layer, not
+            # the class, by default
+            try:
+                module = sys._getframe(1).f_globals['__name__']
+            except (ValueError, AttributeError, KeyError,):
+                module = self.__class__.__module__
         super(PloneAPILayer, self).__init__(
             bases=bases, name=name, module=module)
 
