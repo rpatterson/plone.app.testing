@@ -26,6 +26,9 @@ attributes should only be used inside these methods when overriden.
         up before a portal is created, such as using self.loadZCML().
     >>> help(self.afterSetUp)
     Help...
+        Called after the Plone site has been created and configured.
+        May be overridden by subclasses to perform additional test set
+        up that involves making changes to the Plone site.
     >>> help(self.beforeTearDown)
     Help...
         Called before the Plone site is removed and cleaned up.

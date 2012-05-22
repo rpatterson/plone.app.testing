@@ -209,6 +209,7 @@ class PloneDefaultLayer(PloneAPILayer, testing.PloneSandboxLayer):
     defaultBases = (testing.PLONE_FIXTURE, )
 
     def afterSetUp(self):
+        super(PloneDefaultLayer, self).afterSetUp.__doc__
         self.setUpDefaultPlone()
         self.setUpMockMailHost()
         self.setUpErrorLog()
