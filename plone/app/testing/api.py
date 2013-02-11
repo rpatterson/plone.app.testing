@@ -16,7 +16,7 @@ from Products.CMFCore.utils import getToolByName
 
 from plone.testing import z2
 from plone.testing import _z2_testbrowser
-from plone.app import testing 
+from plone.app import testing
 
 # Convenience imports
 from plone.testing import layered
@@ -31,6 +31,9 @@ from plone.app.testing import  (
         SITE_OWNER_NAME,
         SITE_OWNER_PASSWORD
     )
+(layered, PLONE_SITE_ID, PLONE_SITE_TITLE, DEFAULT_LANGUAGE,
+ TEST_USER_NAME, TEST_USER_ID, TEST_USER_PASSWORD, TEST_USER_ROLES,
+ SITE_OWNER_NAME, SITE_OWNER_PASSWORD)  # pyflakes
 
 
 class PloneTest(object):
@@ -86,7 +89,7 @@ class PloneTest(object):
         except IOError:
             pass  # Tolerate missing ZCML, not required
         z2.installProduct(self.app, productName)
-            
+
     def setRoles(self, roles, userId=testing.TEST_USER_ID):
         """Set the given user's roles to a tuple of roles."""
         testing.setRoles(self.portal, userId, roles)
@@ -117,7 +120,7 @@ class PloneTest(object):
     def addProduct(self, name):
         """Quickinstalls a product into the site."""
         testing.quickInstallProduct(self.portal, name)
-    
+
     def addUser(self, userId=testing.TEST_USER_ID,
                    password=testing.TEST_USER_PASSWORD):
         """Creates a user, plone.app.testing.TEST_USER_ID by default."""
@@ -147,7 +150,6 @@ class PloneAPILayer(PloneTest):
     # command.  Given this, just standardize on functional testing
     # since it has no apparent additional cost and is much less
     # surprising when users call `transaction.commit` during tests.
-
 
     defaultBases = (testing.PLONE_FIXTURE, )
 
@@ -338,14 +340,14 @@ class PloneTestCase(unittest.TestCase, PloneTest):
         self.beforeTearDown()
         super(PloneTestCase, self).tearDown()
         self.afterTearDown()
-        
+
     def loadZCML(self, name='configure.zcml', **kw):
         """Load a ZCML file, configure.zcml by default."""
         self.layer.loadZCML(name=name, **kw)
 
-    
+
 class Browser(_z2_testbrowser.Browser):
-    
+
     def __init__(self, app, url=None):
         super(_z2_testbrowser.Browser, self).__init__(
             url=url, mech_browser=Zope2MechanizeBrowser(app))
@@ -354,13 +356,13 @@ class Browser(_z2_testbrowser.Browser):
 class Zope2MechanizeBrowser(_z2_testbrowser.Zope2MechanizeBrowser):
 
     def __init__(self, app, *args, **kws):
-        
+
         def httpHandlerFactory():
             return Zope2HTTPHandler(app)
-        
+
         self.handler_classes = mechanize.Browser.handler_classes.copy()
         self.handler_classes["http"] = httpHandlerFactory
-        self.default_others = [cls for cls in self.default_others 
+        self.default_others = [cls for cls in self.default_others
                                if cls in mechanize.Browser.handler_classes]
         mechanize.Browser.__init__(self, *args, **kws)
 
@@ -374,7 +376,7 @@ class Zope2HTTPHandler(_z2_testbrowser.Zope2HTTPHandler):
 
 
 class Zope2Connection(_z2_testbrowser.Zope2Connection):
-    
+
     def __init__(self, app, host, timeout=None):
         super(Zope2Connection, self).__init__(app, host, timeout=timeout)
         self.caller = Zope2Caller(app)
@@ -391,7 +393,7 @@ class Zope2Caller(_z2_testbrowser.Zope2Caller):
 
 def DocFileSuite(*paths, **kw):
     """
-    Create a test suite from the given docfile paths with conveniences. 
+    Create a test suite from the given docfile paths with conveniences.
 
     If layer is omitted and test_class is given and test_class has a
     layer, that will be used for the docfile test.
@@ -409,10 +411,11 @@ def DocFileSuite(*paths, **kw):
         self = test_class(methodName='setUp')
 
     kwsetUp = kw.get('setUp')
+
     def setUp(test):
         test.globs.update(layer=layer, self=self, test=test, **kw)
         for attr in ('app', 'portal', 'folder'):
-            test.globs[attr] = getattr(layer, attr) 
+            test.globs[attr] = getattr(layer, attr)
             if 'self' in test.globs:
                 test.globs[attr] = getattr(self, attr)
         if 'self' in test.globs:
@@ -426,6 +429,7 @@ def DocFileSuite(*paths, **kw):
     kw['setUp'] = setUp
 
     kwtearDown = kw.get('tearDown')
+
     def tearDown(test):
         if kwtearDown is not None:
             if 'self' in test.globs:
