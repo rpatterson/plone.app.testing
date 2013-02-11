@@ -276,7 +276,8 @@ class PloneDefaultLayer(PloneAPILayer, testing.PloneSandboxLayer):
         """
         self.portal.portal_css.setDebugMode(True)
         self.portal.portal_javascripts.setDebugMode(True)
-        self.portal.portal_kss.setDebugMode(True)
+        if hasattr(self.portal, 'portal_kss'):
+            self.portal.portal_kss.setDebugMode(True)
 
 PLONE_DEFAULT_FIXTURE = PloneDefaultLayer()
 

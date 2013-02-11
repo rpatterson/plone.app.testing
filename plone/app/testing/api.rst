@@ -78,7 +78,10 @@ output for functional testing.
     True
     >>> portal.portal_javascripts.getDebugMode()
     True
-    >>> portal.portal_kss.getDebugMode()
+    >>> if hasattr(portal, 'portal_kss'):
+    ...     portal.portal_kss.getDebugMode()
+    ... else:
+    ...     True
     True
 
 
