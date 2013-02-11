@@ -1,10 +1,26 @@
 Changelog
 =========
 
-4.2.1 (unreleased)
+4.2.2 (2013-02-09)
 ------------------
 
-- Nothing changed yet.
+- Add [robot] extras for requiring dependnecies for Robot Framework
+  tests with Selenium2Library
+  [datakurre]
+
+- Install PythonScripts as zope product 
+  [mikejmets]
+
+
+4.2.1 (2012-12-15)
+------------------
+
+- Allow testing with non standard port. Allows running multiple test suites 
+  in parallel.
+  [do3cc]
+
+- Documentation updates.
+  [moo]
 
 
 4.2 (2012-04-15)
