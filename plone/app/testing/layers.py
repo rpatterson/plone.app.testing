@@ -87,7 +87,8 @@ class PloneFixture(Layer):
     def setUp(self):
 
         # Stack a new DemoStorage on top of the one from z2.STARTUP.
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='PloneFixture')
+        self['zodbDB'] = zodb.stackDemoStorage(
+            self.get('zodbDB'), name='PloneFixture', layer=self)
 
         self.setUpZCML()
 
@@ -198,6 +199,9 @@ class PloneFixture(Layer):
         all persistent changes are torn down when the stacked ZODB
         ``DemoStorage`` is popped.
         """
+        if getattr(self['zodbDB'], 'db_setup', False):
+            # We're re-using an previously set up FileStorage
+            return
 
         # Create the owner user and "log in" so that the site object gets
         # the right ownership information

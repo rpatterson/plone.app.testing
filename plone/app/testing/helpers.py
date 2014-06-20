@@ -304,8 +304,8 @@ class PloneSandboxLayer(Layer):
         try:
             # Push a new database storage so that database changes
             # commited during layer setup can be easily torn down
-            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'),
-                    name=self.__name__)
+            self['zodbDB'] = zodb.stackDemoStorage(
+                self.get('zodbDB'), name=self.__name__, layer=self)
 
             # Push a new configuration context so that it's possible to re-import
             # ZCML files after tear-down
@@ -341,9 +341,11 @@ class PloneSandboxLayer(Layer):
                 self.setUpZope(portal.getPhysicalRoot(), configurationContext)
 
                 # Allow subclass to configure a persistent fixture
-                setSite(portal)
-                self.setUpPloneSite(portal)
-                setSite(None)
+                if getattr(self['zodbDB'], 'db_setup', False):
+                    # We're re-using an previously set up FileStorage
+                    setSite(portal)
+                    self.setUpPloneSite(portal)
+                    setSite(None)
 
             # Keep track of PAS plugins that were added during setup
             self.snapshotMultiPlugins(preSetupMultiPlugins)
