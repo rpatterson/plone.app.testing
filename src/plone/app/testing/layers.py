@@ -382,8 +382,6 @@ class MockMailHostLayer(Layer):
     """Layer for setting up a MockMailHost to store all sent messages as
     strings into a list at portal.MailHost.messages
     """
-    defaultBases = (PLONE_FIXTURE,)
-
     def testSetUp(self):
         with zope.zopeApp() as app:
             portal = app[PLONE_SITE_ID]
